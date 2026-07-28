@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma" 
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql" 
+}  
+
+enum SubscriptionType {
+  FREE_TRIAL 
+  PAID
+} 
+
+enum SubscriptionDuration {
+  ONE_MONTH
+  THREE_MONTHS
+  SIX_MONTHS
+  ONE_YEAR
+}
+ 
+model Pharmacy {
+  id                     String   @id @default(cuid()) 
+  name                   String   @unique 
+  licenseId              String   @unique 
+  contactEmail           String   @unique 
+  phone                  String
+  address                String  
+  state                  String 
+  city                   String 
+  location               String 
+  subscriptionType       SubscriptionType  
+  duration               SubscriptionDuration?
+  startDate              DateTime 
+  expiryDate             DateTime  
+
+  createdAt              DateTime @default(now()) 
+  updatedAt              DateTime @updatedAt
+}
