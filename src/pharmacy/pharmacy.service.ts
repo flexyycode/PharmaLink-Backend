@@ -3,10 +3,18 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
 import { SubscriptionDuration, SubscriptionType } from 'generated/prisma/enums';
 import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
+import { NotFoundException } from '@nestjs/common'; 
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class PharmacyService {
     constructor(private prisma: PrismaService) {} 
+    private addFullAddress(pharmacy: any) {
+        return {
+            ...pharmacy, 
+            fullAddress: `${pharmacy.street}, ${pharmacy.city}, ${pharmacy.state}`,
+        }; 
+    }
     async create(createPharmacyDto: CreatePharmacyDto) {  
         let startDate: Date; 
         let expiryDate: Date
@@ -46,33 +54,63 @@ export class PharmacyService {
                 break; 
 
                 case SubscriptionDuration.ONE_YEAR:
-                expiryDate.setFullYear(expiryDate.getFullYear() + 1)
+                expiryDate.setFullYear(expiryDate.getFullYear() + 1) 
+
             }
         }
 
-        return this.prisma.pharmacy.create({
+        const hashedPassword = await bcrypt.hash(createPharmacyDto.password, 10); 
+
+        const pharmacy = await this.prisma.pharmacy.create({
             data: {
-                ...createPharmacyDto,  
+                ...createPharmacyDto, 
+                password: hashedPassword,
                 startDate, 
-                expiryDate,
+                expiryDate,  
+            },
+
+            select: {
+                id: true,
+                name: true, 
+                licenseId: true,
+                contactEmail: true, 
+                phone: true,
+                street: true, 
+                city: true, 
+                state: true, 
+                subscriptionType: true, 
+                duration: true, 
+                startDate: true, 
+                expiryDate: true,
+                createdAt: true,    
+                updatedAt: true,
             }
-        })
+          }) 
+        return this.addFullAddress(pharmacy); 
     } 
 
-    async findAll() {
-        return this.prisma.pharmacy.findMany ({
+    async findAll() { 
+        const pharmacies = await this.prisma.pharmacy.findMany ({
             orderBy: {
                 createdAt: "desc", 
             }
         })
+        return pharmacies.map((pharmacy) => this.addFullAddress(pharmacy)) 
     } 
 
-    async findOne(id: string) {
-        return this.prisma.pharmacy.findUnique ({
-            where: {
-                id,
+    async findOne(identifier: string) {
+        const pharmacy = await this.prisma.pharmacy.findFirst ({
+            where: { 
+                OR: [
+                    {id: identifier}, 
+                    {name: identifier}
+                ]
             }
-        })
+        }) 
+        if (!pharmacy) {
+            throw new NotFoundException("Sorry Pharmacy not available") 
+        }
+        return this.addFullAddress(pharmacy)
     }
 
     async remove(id: string) {
@@ -84,11 +122,12 @@ export class PharmacyService {
     } 
 
     async update(id: string, updatePharmacyDto: UpdatePharmacyDto) {
-        return this.prisma.pharmacy.update ({
+        const pharmacy = await this.prisma.pharmacy.update ({
             where : {
                 id, 
             }, 
             data: updatePharmacyDto,
-        });
+        }); 
+        return this.addFullAddress(pharmacy); 
     }
 } 

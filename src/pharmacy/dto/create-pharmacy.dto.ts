@@ -1,4 +1,4 @@
-import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsDate, IsDateString, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateIf } from "class-validator";
 import { SubscriptionDuration, SubscriptionType } from "generated/prisma/enums";
 
 
@@ -13,13 +13,17 @@ export class CreatePharmacyDto {
 
     @IsEmail() 
     @IsNotEmpty() 
-    contactEmail: string; 
+    contactEmail: string;  
+
+    @IsString()
+    @IsNotEmpty() 
+    password: string;
 
     @IsString()
     phone: string; 
 
     @IsString()
-    address: string; 
+    street: string; 
 
     @IsString()
     city: string; 
@@ -27,21 +31,18 @@ export class CreatePharmacyDto {
     @IsString()
     state: string; 
     
-    @IsString()
-    location: string; 
-    
     @IsEnum(SubscriptionType) 
-    subscriptionType: SubscriptionType; 
-    
+    subscriptionType: SubscriptionType;  
+
+    @ValidateIf((o) => o.subscriptionType === SubscriptionType.PAID)
     @IsEnum(SubscriptionDuration) 
-    @IsOptional()
-    duration? : SubscriptionDuration;   
+    duration?: SubscriptionDuration; 
 
-    @IsDate() 
-    @IsOptional() 
-    startDate?: Date; 
+    @ValidateIf((o) => o.subscriptionType === SubscriptionType.FREE_TRIAL)
+    @IsDateString()
+    expiryDate?: string;
 
-    @IsDate() 
+    @IsDateString() 
     @IsOptional() 
-    expiryDate?: Date
+    startDate?: string; 
 }

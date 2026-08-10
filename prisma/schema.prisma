@@ -13,6 +13,11 @@ datasource db {
   provider = "postgresql" 
 }  
 
+enum role {
+  SUPER_ADMIN
+  PHARMACY 
+}
+
 enum SubscriptionType {
   FREE_TRIAL 
   PAID
@@ -29,12 +34,12 @@ model Pharmacy {
   id                     String   @id @default(cuid()) 
   name                   String   @unique 
   licenseId              String   @unique 
-  contactEmail           String   @unique 
+  contactEmail           String   @unique  
+  password               String
   phone                  String
-  address                String  
+  street                 String  
   state                  String 
   city                   String 
-  location               String 
   subscriptionType       SubscriptionType  
   duration               SubscriptionDuration?
   startDate              DateTime 
@@ -42,4 +47,4 @@ model Pharmacy {
 
   createdAt              DateTime @default(now()) 
   updatedAt              DateTime @updatedAt
-}
+} 
