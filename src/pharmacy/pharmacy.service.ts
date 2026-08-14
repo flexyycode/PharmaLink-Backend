@@ -8,13 +8,33 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class PharmacyService {
-    constructor(private prisma: PrismaService) {} 
+    constructor(private prisma: PrismaService) {}  
+
+    private readonly pharmacySelect = {
+                id: true,
+                name: true, 
+                licenseId: true,
+                contactEmail: true, 
+                phone: true,
+                street: true, 
+                city: true, 
+                state: true, 
+                subscriptionType: true, 
+                duration: true, 
+                startDate: true, 
+                expiryDate: true,
+                createdAt: true,    
+                updatedAt: true,
+    }; 
+
+
     private addFullAddress(pharmacy: any) {
         return {
             ...pharmacy, 
             fullAddress: `${pharmacy.street}, ${pharmacy.city}, ${pharmacy.state}`,
         }; 
-    }
+    } 
+
     async create(createPharmacyDto: CreatePharmacyDto) {  
         let startDate: Date; 
         let expiryDate: Date
@@ -68,23 +88,6 @@ export class PharmacyService {
                 startDate, 
                 expiryDate,  
             },
-
-            select: {
-                id: true,
-                name: true, 
-                licenseId: true,
-                contactEmail: true, 
-                phone: true,
-                street: true, 
-                city: true, 
-                state: true, 
-                subscriptionType: true, 
-                duration: true, 
-                startDate: true, 
-                expiryDate: true,
-                createdAt: true,    
-                updatedAt: true,
-            }
           }) 
         return this.addFullAddress(pharmacy); 
     } 
@@ -105,7 +108,8 @@ export class PharmacyService {
                     {id: identifier}, 
                     {name: identifier}
                 ]
-            }
+            }, 
+            select: this.pharmacySelect, 
         }) 
         if (!pharmacy) {
             throw new NotFoundException("Sorry Pharmacy not available") 
@@ -126,7 +130,8 @@ export class PharmacyService {
             where : {
                 id, 
             }, 
-            data: updatePharmacyDto,
+            data: updatePharmacyDto, 
+            select: this.pharmacySelect, 
         }); 
         return this.addFullAddress(pharmacy); 
     }
