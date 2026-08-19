@@ -115,7 +115,15 @@ export class PharmacyService {
             throw new NotFoundException("Sorry Pharmacy not available") 
         }
         return this.addFullAddress(pharmacy)
-    }
+    } 
+
+    async findMe(id: string) {
+    const pharmacy = await this.prisma.pharmacy.findUnique({
+        where: { id },
+    });
+    if (!pharmacy) return null;
+    return this.addFullAddress(pharmacy);
+}
 
     async remove(id: string) {
         return this.prisma.pharmacy.delete({

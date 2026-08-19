@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Delete, Param, Patch, UseGuards } from '@nestjs/common';
+import { Controller, Req, Post, Body, Get, Delete, Param, Patch, UseGuards } from '@nestjs/common';
 import { CreatePharmacyDto } from './dto/create-pharmacy.dto'; 
 import { PharmacyService } from './pharmacy.service';
 import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
@@ -9,6 +9,13 @@ import { Roles } from 'src/auth/roles.decorator';
 @Controller('pharmacy')
 export class PharmacyController { 
     constructor(private readonly pharmacyService: PharmacyService) {} 
+
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('PHARMACY')
+    @Get('me')
+    findMe(@Req() req) {
+        return this.pharmacyService.findMe(req.user.id);
+    }
 
     @UseGuards(JwtAuthGuard, RolesGuard) 
     @Roles('SUPER_ADMIN')
