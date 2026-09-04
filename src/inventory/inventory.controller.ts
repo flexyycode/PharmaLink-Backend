@@ -5,6 +5,7 @@ import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
+import { SubscriptionGuard } from 'src/auth/subscription.guard';
 
 @Controller('inventory')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -29,6 +30,7 @@ export class InventoryController {
         return item;
     }
 
+    @UseGuards(SubscriptionGuard)
     @Patch(':id')
     async update(@Req() req, @Param('id') id: string, @Body() dto: UpdateInventoryDto) {
         const updated = await this.inventoryService.update(req.user.id, id, dto);
@@ -36,6 +38,7 @@ export class InventoryController {
         return updated;
     }
 
+    @UseGuards(SubscriptionGuard) 
     @Delete(':id')
     async remove(@Req() req, @Param('id') id: string) {
         const removed = await this.inventoryService.remove(req.user.id, id);
