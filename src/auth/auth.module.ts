@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtStrategy } from './jwt.strategy';
+import { SubscriptionGuard } from './subscription.guard';
 
 @Module({ 
   imports: [
@@ -18,7 +19,7 @@ import { JwtStrategy } from './jwt.strategy';
     PrismaModule, 
   ],   
 
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, SubscriptionGuard],
   controllers: [AuthController], 
   exports: [AuthService], 
 })
