@@ -51,13 +51,15 @@ model Pharmacy {
   inventory              Inventory[] 
 }  
 
-model Drug { 
+model Inventory { 
   id                        String    @id @default(cuid())
   drugName                  String  
-  drugType                  String  
+  genericName               String   
+  category                  String
   quantity                  Int  
   batchNumber               String
   expiryDate                DateTime 
+  price                     Float
 
   pharmacyId                String 
   pharmacy                  Pharmacy @relation (fields: [pharmacyId], references: [id]) 
